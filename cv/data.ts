@@ -1,21 +1,35 @@
 
-export const PAGE_SETUP = {
-  width: 300,
-  height: 400,
-  hMargin: 15,
-  vMargin: 20
-}
 
-export const CV_TITLE = {
+export const HEADER = {
   title: "MATTHEW MILLER",
   subtitle: "SENIOR SOFTWARE ENGINEER",
   info: [
     "Perth, Australia",
-    "0409 388 123",
+    "+61 (0) 4093 88 123",
     "miller.matthew@gmail.com",
-    "www.linkedin.com/in/matthewmillerprofile"
+    "linkedin.com/in/matthewmillerprofile",
+    "stackoverflow.com/users/2431784/miller",
   ]
 }
+
+export const HELLO = `I am a full-stack software engineer with over 20 years of experience. Recently, I've
+built a lot of web front ends using tooling such as Angular, Vue and React. I've used Java throughout most
+of my career, and more recently have delevoped an affinity for Typescript.`
+
+export const EDUCATION = {
+  period: "1994-97",
+  institution: "The Univerisity of Western Australia",
+  attainment: "Bachelor of Computer & Mathematical Sciences",
+  level: "First Class Honours"
+}
+
+export const SKILLS = [{
+  type: "Front End",
+  items: ["Typescript, Angular", "Vue", "React"]
+},{
+  type: "Back End",
+  items: ["Java", "PostgreSQL", "Oracle", "Neo4j", "MongoDB"]
+}]
 
 export const CAREER = [
   {

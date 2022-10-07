@@ -1,16 +1,18 @@
-import { PDFDocument } from "pdf-lib";
-import { PAGE_SETUP } from "./data";
+import { PAGE_SETUP } from "./style";
 import { Context, Cursor } from "./util";
-import { drawTitle } from "./cv-title";
+import { drawHeader } from "./cv-header";
 import { drawCareer } from "./cv-career";
+import { PageSizes, PDFDocument } from "pdf-lib";
 import fontkit from '@pdf-lib/fontkit';
 import * as fs from "fs";
+import { drawHello } from "./cv-hello";
+import { drawEducation } from "./cv-education";
 
 
 export async function createPDF() {
   const document = await PDFDocument.create();
   document.registerFontkit(fontkit)
-  const page = document.addPage([PAGE_SETUP.width, PAGE_SETUP.height]);
+  const page = document.addPage(PageSizes.A4);
 
   const lightFont = await document.embedFont(fs.readFileSync('assets/NotoSans-Light.ttf'))
   const normalFont = await document.embedFont(fs.readFileSync('assets/NotoSans-Medium.ttf'))
@@ -26,14 +28,40 @@ export async function createPDF() {
   // keep within margins
   const cursor: Omit<Cursor, 'yPos'> = {
     xStart: PAGE_SETUP.hMargin,
-    hWidth: PAGE_SETUP.width - PAGE_SETUP.hMargin * 2,
+    hWidth: page.getWidth() - PAGE_SETUP.hMargin * 2,
   }
 
-  let yPos = PAGE_SETUP.height - PAGE_SETUP.vMargin
+  let yPos = page.getHeight() - PAGE_SETUP.vMargin
 
-  yPos -= (await drawTitle(context, {...cursor, yPos})).vSpaceConsumed
-  yPos -= drawCareer(context, {...cursor, xStart: cursor.xStart + cursor.hWidth / 3, yPos}).vSpaceConsumed
+  // drawTest(context, {...cursor, yPos})
 
+  yPos -= (await drawHeader(context, {...cursor, yPos})).vSpaceConsumed
+
+  yPos -= PAGE_SETUP.hMargin
+
+  {
+    // column 1
+    let yPos1 = yPos
+    const cursor1 = {
+      xStart: cursor.xStart,
+      hWidth: cursor.hWidth / 3
+    }
+    yPos1 -= drawHello(context, {...cursor1, yPos: yPos1}).vSpaceConsumed
+
+  }
+  {
+    // column 2
+    let yPos2 = yPos
+    const cursor2 = {
+      xStart: cursor.xStart + cursor.hWidth / 3,
+      hWidth: cursor.hWidth * 2 / 3
+    }
+    const {vSpaceConsumed, yPosOld } = drawCareer(context, {...cursor2, yPos: yPos2})
+    yPos2 -= vSpaceConsumed
+    
+    yPos2 -= drawEducation(context, {...cursor2, yPos: yPos2}, yPosOld).vSpaceConsumed
+  }
+  
   fs.writeFileSync("cv.pdf", await document.save());
 }
 

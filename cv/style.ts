@@ -1,8 +1,14 @@
 
+export const PAGE_SETUP = {
+  hMargin: 35,
+  vMargin: 40
+}
 
 export const FONT_SIZES = {
-  TITLE: 13.5,
-  HEADING: 8,
-  NORMAL: 5,
-  TINY: 4
+  TITLE: 28,
+  HEADING: 14,
+  NORMAL: 11,
+  TINY: 9
 }
+
+export const TIMELINE_WIDTH = 50

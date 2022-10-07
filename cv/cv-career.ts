@@ -1,87 +1,119 @@
-import { measureText, Context, Cursor, wrapText } from "./util";
+import { measureTextWidth, Context, Cursor, wrapText, roundedRectPath } from "./util";
 import { CAREER } from "./data";
-import { FONT_SIZES } from "./style";
+import { FONT_SIZES, TIMELINE_WIDTH } from "./style";
+import { drawSectionHeader } from "./cv-section-header";
+import { rgb } from "pdf-lib";
 
-const ROW_HEIGHT = 14
+const GAP = 4
+const PADDING = 4
 
+export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: number, yPosOld: number} {
 
-export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
+  const { vSpaceConsumed } = drawSectionHeader('MY CAREER', ctx, cursor)
 
-  const COLUMN_GAP = 4
-
-  const normalFont = ctx.fonts.normal
-
-  const widths = {
-    period: Math.max(...CAREER.map(c => measureText(c.period, normalFont, FONT_SIZES.NORMAL).width)),
-    company: Math.max(...CAREER.map(c => measureText(c.company, normalFont, FONT_SIZES.NORMAL).width)),
-    role: Math.max(...CAREER.map(c => measureText(c.role, normalFont, FONT_SIZES.NORMAL).width))
-  }
-
-  const xs = {
-    period: cursor.xStart,
-    company: cursor.xStart + widths.period + COLUMN_GAP,
-    role: cursor.xStart + widths.period + COLUMN_GAP + widths.company + COLUMN_GAP
-  }
-
-  let {yPos} = cursor
-  let totalSpaceConsumed = 0
+  let yPos = cursor.yPos - vSpaceConsumed
+  let yPosOld = undefined
+  let totalSpaceConsumed = vSpaceConsumed
   for (let i = 0; i < CAREER.length; i++) {
-    const {vSpaceConsumed} = drawCareerRow(CAREER[i], xs, ctx, {...cursor, yPos})
+    const {vSpaceConsumed} = drawCareerRow(CAREER[i], ctx, {...cursor, yPos}, yPosOld)
+    yPosOld = yPos
     yPos -= vSpaceConsumed
     totalSpaceConsumed += vSpaceConsumed
   }
 
-  return {vSpaceConsumed: totalSpaceConsumed}
+  return {vSpaceConsumed: totalSpaceConsumed, yPosOld: yPosOld!}
 }
 
 function drawCareerRow(row: typeof CAREER[number],
-  xs: {period: number, company: number, role: number},
   ctx: Context,
-  cursor: Cursor): {vSpaceConsumed: number} {
+  cursor: Cursor,
+  yPosOld: number|undefined): {vSpaceConsumed: number} {
   const {page} = ctx
   const {normal, bold} = ctx.fonts
 
-  let {yPos} = cursor
+  let { yPos } = cursor
+
+  page.drawCircle({
+    x: cursor.xStart - 5,
+    y: yPos - FONT_SIZES.TINY * 0.75,
+    size: 1.5,
+    color: rgb(0.2,0.2,0.2)
+  })
+
+  if (typeof yPosOld === 'number') {
+    page.drawLine({
+      start: {x: cursor.xStart - 5, y: yPosOld - FONT_SIZES.NORMAL * 0.75},
+      end: {x: cursor.xStart - 5, y: yPos - FONT_SIZES.NORMAL * 0.75},
+      thickness: 1,
+      color: rgb(0.2, 0.2, 0.2)
+    })
+  }
 
   const widths = {
-    role: measureText(row.role, normal, FONT_SIZES.NORMAL).width,
-    company: measureText(row.company, bold, FONT_SIZES.NORMAL).width
+    role: measureTextWidth(row.role, normal, FONT_SIZES.NORMAL),
+    company: measureTextWidth(row.company, bold, FONT_SIZES.NORMAL)
   }
 
   page.drawText(row.period, {
-    x: xs.period,
-    y: yPos - ROW_HEIGHT,
-    font: normal,
-    size: FONT_SIZES.NORMAL,
+    x: cursor.xStart,
+    y: yPos - FONT_SIZES.TINY,
+    font: ctx.fonts.light,
+    size: FONT_SIZES.TINY,
   });
 
   page.drawText(row.role, {
-    x: xs.company,
-    y: yPos - ROW_HEIGHT,
+    x: cursor.xStart + TIMELINE_WIDTH,
+    y: yPos - FONT_SIZES.NORMAL,
     font: normal,
     size: FONT_SIZES.NORMAL,
   });
 
   page.drawText(row.company, {
-    x: xs.company + widths.role + 2,
-    y: yPos - ROW_HEIGHT,
+    x: cursor.xStart + TIMELINE_WIDTH + widths.role + 2,
+    y: yPos - FONT_SIZES.NORMAL,
     font: bold,
     size: FONT_SIZES.NORMAL,
   });
 
-  yPos -= ROW_HEIGHT
+  yPos -= FONT_SIZES.NORMAL
 
-  const {lines, height} = wrapText(row.description.replace('\n', ''), cursor.hWidth, normal, FONT_SIZES.NORMAL)
+  const {lines} = wrapText(row.description, cursor.hWidth - TIMELINE_WIDTH, normal, FONT_SIZES.NORMAL)
 
-  for (let i = 0; i < lines.length; i++) {
-    page.drawText(row.description, {
-      x: xs.company,
+  lines.forEach((line, i) => {
+    page.drawText(line, {
+      x: cursor.xStart + TIMELINE_WIDTH,
       y: yPos - FONT_SIZES.NORMAL - i * FONT_SIZES.NORMAL,
       font: normal,
       size: FONT_SIZES.NORMAL,
     })
-  }
+  })
 
-  return {vSpaceConsumed: ROW_HEIGHT + height}
+  let vSpaceConsumed = FONT_SIZES.NORMAL * (lines.length + 1)
+  yPos -= vSpaceConsumed
 
+  row.tech.reduce((x: number, tech: string) => {
+    const width = measureTextWidth(tech, normal, FONT_SIZES.NORMAL)
+
+    page.drawSvgPath(roundedRectPath(width + 6, FONT_SIZES.NORMAL + 2, (FONT_SIZES.NORMAL + 2) / 2), {
+      x: cursor.xStart + TIMELINE_WIDTH + x - 3,
+      y: yPos - PADDING + FONT_SIZES.NORMAL * 0.75 + 1,
+      // scale: imageSize / 2,
+      color: rgb(0.9, 0.9, 0.9),
+    })
+
+    page.drawText(tech, {
+      x: cursor.xStart + TIMELINE_WIDTH + x,
+      y: yPos - PADDING,
+      font: normal,
+      size: FONT_SIZES.NORMAL,
+      color: rgb(0.2, 0.2, 0.2)
+    })
+    
+
+    return x + width + GAP + 4
+  }, 0)
+
+  vSpaceConsumed += FONT_SIZES.NORMAL + PADDING * 2
+
+  return {vSpaceConsumed}
 }

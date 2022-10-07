@@ -1,5 +1,5 @@
-import { measureText, Context, Cursor } from "./util";
-import { CV_TITLE } from "./data";
+import { measureTextWidth, Context, Cursor } from "./util";
+import { HEADER as CV_TITLE } from "./data";
 import { FONT_SIZES } from "./style";
 import * as fs from "fs";
 import { rgb } from "pdf-lib";
@@ -20,9 +20,9 @@ export async function drawTitle(ctx: Context, cursor: Cursor): Promise<{vSpaceCo
   const img = await document.embedJpg(imgBuffer);
 
   const info = CV_TITLE.info.join(" | ")
-  const {width: titleWidth} = measureText(CV_TITLE.title, normalFont, FONT_SIZES.TITLE)
-  const {width: subtitleWidth} = measureText(CV_TITLE.subtitle, normalFont, FONT_SIZES.HEADING)
-  const {width: infoWidth} = measureText(info, normalFont, FONT_SIZES.TINY)
+  const titleWidth = measureTextWidth(CV_TITLE.title, normalFont, FONT_SIZES.TITLE)
+  const subtitleWidth = measureTextWidth(CV_TITLE.subtitle, normalFont, FONT_SIZES.HEADING)
+  const infoWidth = measureTextWidth(info, normalFont, FONT_SIZES.TINY)
 
   const headerHeight = BLOCK_HEIGHTS.TITLE + BLOCK_HEIGHTS.SUBTITLE + BLOCK_HEIGHTS.INFO
   const imageSize = headerHeight
