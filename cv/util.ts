@@ -1,4 +1,5 @@
 import { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
+import { FONT_SIZES } from "./style";
 
 export interface Context {
   document: PDFDocument,
@@ -6,6 +7,7 @@ export interface Context {
   fonts: {
     light: PDFFont,
     normal: PDFFont,
+    normalItalic: PDFFont,
     bold: PDFFont
   }
 }
@@ -16,44 +18,58 @@ export interface Cursor {
   hWidth: number
 }
 
-// export class Positioner {
-//   private readonly xStart: number
-//   constructor(public readonly pageWidth: number, public readonly innerWidth: number) {
-//     this.xStart = (pageWidth - innerWidth) / 2
-//   }
-// }
-
-
 /**
  * Measures how much width the given text consumes
  * 
  * Note that the font also provides a measure of height [ font.heightAtSize(fontSize) ], but it seems inaccurate
  * 
  * Best just to assume the font takes up the size of it's fontSize overall (including descent)
- *
- * @param text
- * @param font 
- * @param fontSize 
- * @returns 
  */
 export function measureTextWidth(text: string, font: PDFFont, fontSize: number): number {
   return font.widthOfTextAtSize(text, fontSize)
 }
 
-export function wrapText(text: string, space: number, font: PDFFont, fontSize: number): {lines: string[], width: number} {
+/**
+ * 
+ * @param text 
+ * @param page 
+ * @param cursor 
+ * @param font 
+ * @param fontSize 
+ * @returns 
+ */
+export function writeMultilineText(text: string, page: PDFPage, cursor: Cursor, font: PDFFont, fontSize: number): { vSpaceConsumed: number } {
+  const {lines} = wrapText(text, cursor.hWidth, font, fontSize)
+
+  lines.forEach((line, i) => {
+    page.drawText(line, {
+      x: cursor.xStart,
+      y: cursor.yPos - fontSize * (i + 1),
+      font,
+      size: fontSize,
+    })
+  })
+
+  return { vSpaceConsumed: lines.length * fontSize }
+}
+
+
+export function wrapText(text: string, space: number | readonly [number, number], font: PDFFont, fontSize: number): {lines: string[], width: number} {
   const words = text.split(/\s+/);
   let result: {line: string, width: number}[] = []
 
   let line = '';
   let width = 0;
+  let availableSpace: number = Array.isArray(space) ? space[0] : space
 
   for (let n = 0; n < words.length; n++) {
     const testLine = line ? line + ' ' + words[n] : words[n];
     const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-    if (testWidth > space) {
+    if (testWidth > availableSpace) {
       result.push({line, width})
       line = words[n];
       width = font.widthOfTextAtSize(words[n], fontSize)
+      availableSpace = Array.isArray(space) ? space[1] : space
     } else {
       line = testLine;
       width = testWidth
@@ -65,6 +81,22 @@ export function wrapText(text: string, space: number, font: PDFFont, fontSize: n
     lines: result.map(r => r.line),
     width: Math.max(...result.map(r => r.width)),
   };
+}
+
+const HEADING_GAP = 14
+
+export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
+
+  const headingHeight = FONT_SIZES.HEADING * 0.75
+
+  ctx.page.drawText(text, {
+    x: cursor.xStart,
+    y: cursor.yPos - headingHeight - HEADING_GAP,
+    font: ctx.fonts.normal,
+    size: FONT_SIZES.HEADING,
+  })
+
+  return {vSpaceConsumed: headingHeight + HEADING_GAP * 2}
 }
 
 export function roundedRectPath(width: number, height: number, borderRadius: number): string {

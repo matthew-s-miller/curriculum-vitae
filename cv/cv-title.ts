@@ -29,7 +29,6 @@ export async function drawTitle(ctx: Context, cursor: Cursor): Promise<{vSpaceCo
   const textColumnWidth = Math.max(titleWidth, subtitleWidth, infoWidth)
 
   const headerLeft = cursor.xStart + (cursor.hWidth - (imageSize + COLUMN_GAP + textColumnWidth)) / 2
-  console.log({pageWidth: ctx.page.getWidth(), textColumnWidth, headerLeft, imageSize})
   const textLeft = headerLeft + imageSize + COLUMN_GAP
 
   page.drawImage(img, {

@@ -1,11 +1,11 @@
-import { measureTextWidth, Context, Cursor, wrapText, roundedRectPath } from "./util";
+import { measureTextWidth, Context, Cursor, wrapText, roundedRectPath, writeMultilineText, drawSectionHeader } from "./util";
 import { CAREER } from "./data";
-import { FONT_SIZES, TIMELINE_WIDTH } from "./style";
-import { drawSectionHeader } from "./cv-section-header";
+import { FONT_SIZES } from "./style";
 import { rgb } from "pdf-lib";
 
-const GAP = 4
-const PADDING = 4
+const DETAILS_MARGIN = 16
+const TECH_SPACING = 4
+const CHIP_PADDING = 5
 
 export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: number, yPosOld: number} {
 
@@ -15,7 +15,7 @@ export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: numbe
   let yPosOld = undefined
   let totalSpaceConsumed = vSpaceConsumed
   for (let i = 0; i < CAREER.length; i++) {
-    const {vSpaceConsumed} = drawCareerRow(CAREER[i], ctx, {...cursor, yPos}, yPosOld)
+    const {vSpaceConsumed} = drawCareerRow(CAREER[i], ctx, {...cursor, yPos}, i < 6, yPosOld)
     yPosOld = yPos
     yPos -= vSpaceConsumed
     totalSpaceConsumed += vSpaceConsumed
@@ -27,12 +27,13 @@ export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: numbe
 function drawCareerRow(row: typeof CAREER[number],
   ctx: Context,
   cursor: Cursor,
+  details: boolean,
   yPosOld: number|undefined): {vSpaceConsumed: number} {
   const {page} = ctx
-  const {normal, bold} = ctx.fonts
 
   let { yPos } = cursor
 
+  // draw the timeline
   page.drawCircle({
     x: cursor.xStart - 5,
     y: yPos - FONT_SIZES.TINY * 0.75,
@@ -49,71 +50,82 @@ function drawCareerRow(row: typeof CAREER[number],
     })
   }
 
-  const widths = {
-    role: measureTextWidth(row.role, normal, FONT_SIZES.NORMAL),
-    company: measureTextWidth(row.company, bold, FONT_SIZES.NORMAL)
-  }
+  let vSpaceConsumed = 0
 
-  page.drawText(row.period, {
+  page.drawText(row.company, {
     x: cursor.xStart,
-    y: yPos - FONT_SIZES.TINY,
+    y: yPos - FONT_SIZES.NORMAL,
+    font: ctx.fonts.bold,
+    size: FONT_SIZES.NORMAL,
+  });
+
+  const companyWidth = measureTextWidth(row.company, ctx.fonts.bold, FONT_SIZES.NORMAL)
+
+  page.drawText(`| ${row.period}`, {
+    x: cursor.xStart + companyWidth + 4,
+    y: yPos - FONT_SIZES.NORMAL, // align with company font
     font: ctx.fonts.light,
     size: FONT_SIZES.TINY,
   });
 
-  page.drawText(row.role, {
-    x: cursor.xStart + TIMELINE_WIDTH,
-    y: yPos - FONT_SIZES.NORMAL,
-    font: normal,
-    size: FONT_SIZES.NORMAL,
-  });
+  const periodWidth = measureTextWidth(row.period, ctx.fonts.light, FONT_SIZES.TINY)
 
-  page.drawText(row.company, {
-    x: cursor.xStart + TIMELINE_WIDTH + widths.role + 2,
-    y: yPos - FONT_SIZES.NORMAL,
-    font: bold,
-    size: FONT_SIZES.NORMAL,
-  });
+  appendTech(row.tech, ctx, {...cursor, yPos, xStart: cursor.xStart + companyWidth + periodWidth + 20})
 
+  vSpaceConsumed += FONT_SIZES.NORMAL
   yPos -= FONT_SIZES.NORMAL
 
-  const {lines} = wrapText(row.description, cursor.hWidth - TIMELINE_WIDTH, normal, FONT_SIZES.NORMAL)
+  if (details && row.company !== 'SmartBeat') {
+    const vDetailsSpaceConsumed = drawDetails(row, ctx, {...cursor, yPos}).vSpaceConsumed
+    vSpaceConsumed += vDetailsSpaceConsumed
+    yPos -= vDetailsSpaceConsumed
+  } else {
+    vSpaceConsumed += DETAILS_MARGIN
+    yPos -= DETAILS_MARGIN
+  }
 
-  lines.forEach((line, i) => {
-    page.drawText(line, {
-      x: cursor.xStart + TIMELINE_WIDTH,
-      y: yPos - FONT_SIZES.NORMAL - i * FONT_SIZES.NORMAL,
-      font: normal,
-      size: FONT_SIZES.NORMAL,
-    })
-  })
+  return {vSpaceConsumed}
+}
 
-  let vSpaceConsumed = FONT_SIZES.NORMAL * (lines.length + 1)
-  yPos -= vSpaceConsumed
+function drawDetails(row: typeof CAREER[number], ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
+  let vSpaceConsumed = DETAILS_MARGIN
+  let yPos = cursor.yPos - DETAILS_MARGIN
 
-  row.tech.reduce((x: number, tech: string) => {
-    const width = measureTextWidth(tech, normal, FONT_SIZES.NORMAL)
+  ctx.page.drawText(row.role, {
+    x: cursor.xStart + DETAILS_MARGIN / 2,
+    y: yPos - FONT_SIZES.NORMAL,
+    font: ctx.fonts.normalItalic,
+    size: FONT_SIZES.NORMAL,
+  });
 
-    page.drawSvgPath(roundedRectPath(width + 6, FONT_SIZES.NORMAL + 2, (FONT_SIZES.NORMAL + 2) / 2), {
-      x: cursor.xStart + TIMELINE_WIDTH + x - 3,
-      y: yPos - PADDING + FONT_SIZES.NORMAL * 0.75 + 1,
-      // scale: imageSize / 2,
+  vSpaceConsumed += FONT_SIZES.NORMAL
+  yPos -= FONT_SIZES.NORMAL
+
+  const linesConsumed = writeMultilineText(row.description, ctx.page, {yPos, xStart: cursor.xStart + DETAILS_MARGIN / 2, hWidth: cursor.hWidth - DETAILS_MARGIN / 2}, ctx.fonts.light, FONT_SIZES.TINY).vSpaceConsumed
+  vSpaceConsumed += linesConsumed + DETAILS_MARGIN
+  return {vSpaceConsumed}
+}
+
+function appendTech(tech: string[], ctx: Context, cursor: Cursor) {
+  const { yPos } = cursor
+
+  tech.reduce((x: number, tech: string) => {
+    const width = measureTextWidth(tech, ctx.fonts.light, FONT_SIZES.TINY)
+
+    ctx.page.drawSvgPath(roundedRectPath(width + CHIP_PADDING * 2, FONT_SIZES.NORMAL + 2, (FONT_SIZES.NORMAL + 2) / 2), {
+      x: x - CHIP_PADDING,
+      y: yPos - CHIP_PADDING / 2 + 2,
       color: rgb(0.9, 0.9, 0.9),
     })
 
-    page.drawText(tech, {
-      x: cursor.xStart + TIMELINE_WIDTH + x,
-      y: yPos - PADDING,
-      font: normal,
-      size: FONT_SIZES.NORMAL,
+    ctx.page.drawText(tech, {
+      x,
+      y: yPos - FONT_SIZES.NORMAL, // align against row text
+      font: ctx.fonts.light,
+      size: FONT_SIZES.TINY,
       color: rgb(0.2, 0.2, 0.2)
     })
-    
 
-    return x + width + GAP + 4
-  }, 0)
-
-  vSpaceConsumed += FONT_SIZES.NORMAL + PADDING * 2
-
-  return {vSpaceConsumed}
+    return x + width + TECH_SPACING + CHIP_PADDING * 2
+  }, cursor.xStart)
 }

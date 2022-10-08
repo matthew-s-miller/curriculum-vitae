@@ -4,94 +4,94 @@ import { FONT_SIZES } from "./style";
 import { rgb } from "pdf-lib";
 import * as fs from "fs";
 
-const TITLE_GAP = 6
-const INFO_GAP = 3
+const MUGSHOT_SIZE = 64
+const TITLE_GAP = 0
+const SUBTITLE_GAP = 16
+
+const INFO_GAP = 8
 
 export async function drawHeader(ctx: Context, cursor: Cursor): Promise<{vSpaceConsumed: number}> {
 
-  const {page} = ctx
+  let {yPos} = cursor
 
   const imgBuffer = fs.readFileSync('./assets/mugshot.jpg');
   const img = await ctx.document.embedJpg(imgBuffer);
 
-  const normalFont = ctx.fonts.light
+  let vSpaceConsumed = 0
 
-  const heights = {
-    title: FONT_SIZES.TITLE * 0.8,
-    subtitle: FONT_SIZES.HEADING * 0.8,
-    info: FONT_SIZES.TINY * 0.8
-  }
-  const infoHeight = heights.info * HEADER.info.length + INFO_GAP * (HEADER.info.length - 1)
-  const titlesHeight = heights.title + TITLE_GAP + heights.subtitle
-  const titlesOffset = (infoHeight - titlesHeight) / 2
-  console.log({infoHeight, titlesHeight, titlesOffset})
+  const imageX = (cursor.hWidth - MUGSHOT_SIZE) / 2
 
-  const imageSize = titlesHeight
-
-  const textLeft = cursor.xStart + imageSize + TITLE_GAP
-
-  page.drawImage(img, {
-    x: cursor.xStart,
-    y: cursor.yPos - titlesOffset - imageSize,
-    width: imageSize, 
-    height: imageSize
+  ctx.page.drawImage(img, {
+    x: cursor.xStart + imageX,
+    y: yPos - MUGSHOT_SIZE,
+    width: MUGSHOT_SIZE, 
+    height: MUGSHOT_SIZE
   });
 
-  page.drawSvgPath(
+  ctx.page.drawSvgPath(
     `M0 0 L0 2 L1 2 A1 1 0 0 1 1 0 A1 1 0 0 1 1 2 L2 2 L 2 0 Z`,
     {
-      x: cursor.xStart,
-      y: cursor.yPos - titlesOffset,
-      scale: imageSize / 2,
+      x: cursor.xStart + imageX,
+      y: yPos,
+      scale: MUGSHOT_SIZE / 2,
       color: rgb(1, 1, 1),
       borderColor: rgb(1, 1, 1),
-      borderWidth: 0.02
+      borderWidth: 0.1
     }
   )
 
-  page.drawText(HEADER.title, {
-    x: textLeft,
-    y: cursor.yPos - titlesOffset - heights.title,
-    font: normalFont,
-    size: FONT_SIZES.TITLE,
-  });
+  vSpaceConsumed += MUGSHOT_SIZE
+  yPos -= MUGSHOT_SIZE
 
-  // page.drawRectangle({
-  //   x: textLeft,
-  //   y: cursor.yPos - titlesOffset - heights.title,
-  //   width: 50, 
-  //   height: heights.title,
-  //   borderColor: rgb(1, 0, 0),
-  //   borderWidth: 1
-  // })
+  HEADER.title.split(/\s+/).forEach(title => {
+    vSpaceConsumed += TITLE_GAP
+    yPos -= TITLE_GAP
 
-  page.drawText(HEADER.subtitle, {
-    x: textLeft,
-    y: cursor.yPos - titlesOffset - heights.title - TITLE_GAP - heights.subtitle,
-    font: normalFont,
-    size: FONT_SIZES.HEADING,
-  });
+    const titleWidth = measureTextWidth(title, ctx.fonts.light, FONT_SIZES.TITLE)
+    const titleX = (cursor.hWidth - titleWidth) / 2
 
-  // page.drawRectangle({
-  //   x: textLeft,
-  //   y: cursor.yPos - titlesOffset - heights.title - TITLE_GAP - heights.subtitle,
-  //   width: 50, 
-  //   height: heights.subtitle,
-  //   borderColor: rgb(1, 0, 0),
-  //   borderWidth: 1
-  // })
-
-  let iPos = cursor.yPos
-  HEADER.info.forEach(info => {
-    const infoWidth = measureTextWidth(info, normalFont, FONT_SIZES.TINY)
-    page.drawText(info, {
-      x: cursor.xStart + cursor.hWidth - infoWidth,
-      y: iPos - FONT_SIZES.TINY,
-      font: normalFont,
-      size: FONT_SIZES.TINY,
+    ctx.page.drawText(title, {
+      x: cursor.xStart + titleX,
+      y: yPos - FONT_SIZES.TITLE,
+      font: ctx.fonts.light,
+      size: FONT_SIZES.TITLE,
     });
-    iPos -= (FONT_SIZES.TINY + INFO_GAP)
+
+    vSpaceConsumed += FONT_SIZES.TITLE
+    yPos -= FONT_SIZES.TITLE
   })
 
-  return {vSpaceConsumed: infoHeight}
+  vSpaceConsumed += SUBTITLE_GAP
+  yPos -= SUBTITLE_GAP
+
+  {
+    const subtitleWidth = measureTextWidth(HEADER.subtitle, ctx.fonts.bold, FONT_SIZES.HEADING)
+    const subtitleX = (cursor.hWidth - subtitleWidth) / 2
+
+    ctx.page.drawText(HEADER.subtitle, {
+      x: cursor.xStart + subtitleX,
+      y: yPos - FONT_SIZES.HEADING,
+      font: ctx.fonts.light,
+      size: FONT_SIZES.HEADING,
+    });
+
+    vSpaceConsumed += FONT_SIZES.HEADING
+    yPos -= FONT_SIZES.HEADING
+  }
+
+  vSpaceConsumed += SUBTITLE_GAP
+  yPos -= SUBTITLE_GAP
+
+  vSpaceConsumed += HEADER.info.reduce((vSpace, info) => {
+    const infoWidth = measureTextWidth(info, ctx.fonts.normal, FONT_SIZES.TINY)
+    ctx.page.drawText(info, {
+      x: cursor.xStart,
+      y: yPos - vSpace - FONT_SIZES.TINY,
+      font: ctx.fonts.normal,
+      size: FONT_SIZES.TINY,
+    });
+    return vSpace + FONT_SIZES.TINY + INFO_GAP
+  }, 0)
+
+  return  {vSpaceConsumed: vSpaceConsumed - INFO_GAP }
 }

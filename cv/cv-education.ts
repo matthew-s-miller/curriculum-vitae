@@ -1,40 +1,42 @@
 import { rgb } from "pdf-lib";
-import { drawSectionHeader } from "./cv-section-header";
 import { EDUCATION } from "./data";
-import { FONT_SIZES, TIMELINE_WIDTH } from "./style";
-import { Context, Cursor, measureTextWidth, roundedRectPath, wrapText } from "./util";
+import { FONT_SIZES } from "./style";
+import { Context, Cursor, drawSectionHeader, measureTextWidth, writeMultilineText } from "./util";
 
-const GAP = 4
-const PADDING = 4
+const LINE_SPACING = FONT_SIZES.NORMAL + 2
 
-export function drawEducation(ctx: Context, cursor: Cursor, yPosOld: number|undefined): {vSpaceConsumed: number} {
+export function drawEducation(ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
 
-  let { yPos } = cursor
+  let titleSpaceConsumed = drawSectionHeader('EDUCATION & CERTIFICATES', ctx, cursor).vSpaceConsumed
 
-  let { vSpaceConsumed } = drawSectionHeader('EDUCATION', ctx, cursor)
+  let yPos = cursor.yPos
+  let yPosOld: number|undefined
+  const vSpaceConsumed = EDUCATION.reduce((vSpace, row) => {
+    
+    const extraSpace = drawEducationRow(row, ctx, {...cursor, yPos: yPos - vSpace}, yPosOld).vSpaceConsumed + vSpace + FONT_SIZES.NORMAL
+    yPosOld = yPos - vSpace
+    return extraSpace
+  }, titleSpaceConsumed)
 
-  return drawEducationRow(EDUCATION, ctx, {...cursor, yPos: yPos - vSpaceConsumed}, yPosOld)
+  return { vSpaceConsumed }
 }
 
 
-function drawEducationRow(row: typeof EDUCATION,
-  ctx: Context,
-  cursor: Cursor,
-  yPosOld: number|undefined): {vSpaceConsumed: number} {
-  const {page} = ctx
-  const {normal, bold} = ctx.fonts
+export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cursor: Cursor, yPosOld: number|undefined): {vSpaceConsumed: number} {
 
   let { yPos } = cursor
+  let vSpaceConsumed = 0 
 
-  page.drawCircle({
+  // draw the timeline
+  ctx.page.drawCircle({
     x: cursor.xStart - 5,
-    y: yPos - FONT_SIZES.NORMAL * 0.75,
+    y: yPos - FONT_SIZES.TINY * 0.75,
     size: 1.5,
-    color: rgb(0,0,0)
+    color: rgb(0.2,0.2,0.2)
   })
 
   if (typeof yPosOld === 'number') {
-    page.drawLine({
+    ctx.page.drawLine({
       start: {x: cursor.xStart - 5, y: yPosOld - FONT_SIZES.NORMAL * 0.75},
       end: {x: cursor.xStart - 5, y: yPos - FONT_SIZES.NORMAL * 0.75},
       thickness: 1,
@@ -42,59 +44,46 @@ function drawEducationRow(row: typeof EDUCATION,
     })
   }
 
-  let vSpaceConsumed = 0
-
-  page.drawText(row.period, {
+  ctx.page.drawText(row.institution, {
     x: cursor.xStart,
     y: yPos - FONT_SIZES.NORMAL,
-    font: normal,
+    font: ctx.fonts.bold,
     size: FONT_SIZES.NORMAL,
   });
 
-  page.drawText(row.attainment, {
-    x: cursor.xStart + TIMELINE_WIDTH,
+  const institutionWidth = measureTextWidth(row.institution, ctx.fonts.bold, FONT_SIZES.NORMAL)
+
+  ctx.page.drawText(`| ${row.period}`, {
+    x: cursor.xStart + institutionWidth + 4,
+    y: yPos - FONT_SIZES.NORMAL, // align with company font
+    font: ctx.fonts.light,
+    size: FONT_SIZES.TINY,
+  });
+
+  vSpaceConsumed += LINE_SPACING
+  yPos -= LINE_SPACING
+
+  ctx.page.drawText(row.attainment, {
+    x: cursor.xStart,
     y: yPos - FONT_SIZES.NORMAL,
-    font: normal,
+    font: ctx.fonts.normal,
     size: FONT_SIZES.NORMAL,
   });
 
-  vSpaceConsumed += FONT_SIZES.NORMAL
-  yPos -= FONT_SIZES.NORMAL
+  // const linesConsumed = ctx.page.drawText(row.attainment, ctx.page, {...cursor, yPos }, ctx.fonts.normal, FONT_SIZES.NORMAL).vSpaceConsumed
+  
+  vSpaceConsumed += LINE_SPACING
 
-  page.drawText(row.institution, {
-    x: cursor.xStart + TIMELINE_WIDTH,
-    y: yPos - FONT_SIZES.NORMAL,
-    font: bold,
-    size: FONT_SIZES.NORMAL,
-  });
+  if (row.level) {
+    const attainmentWidth = measureTextWidth(row.attainment, ctx.fonts.normal, FONT_SIZES.NORMAL)
 
-  vSpaceConsumed += FONT_SIZES.NORMAL
-  yPos -= FONT_SIZES.NORMAL;
-
-  [EDUCATION.level].reduce((x: number, tech: string) => {
-    const width = measureTextWidth(tech, normal, FONT_SIZES.NORMAL)
-
-    page.drawSvgPath(roundedRectPath(width + 6, FONT_SIZES.NORMAL + 2, (FONT_SIZES.NORMAL + 2) / 2), {
-      x: cursor.xStart + TIMELINE_WIDTH + x - 3,
-      y: yPos - PADDING + FONT_SIZES.NORMAL * 0.75 + 1,
-      // scale: imageSize / 2,
-      color: rgb(0.9, 0.9, 1.0),
-    })
-
-    page.drawText(tech, {
-      x: cursor.xStart + TIMELINE_WIDTH + x,
-      y: yPos - PADDING,
-      font: normal,
+    ctx.page.drawText(row.level, {
+      x: cursor.xStart + attainmentWidth + 4,
+      y: yPos - FONT_SIZES.NORMAL,
+      font: ctx.fonts.bold,
       size: FONT_SIZES.NORMAL,
-      color: rgb(0.2, 0.2, 0.2)
-    })
-    
-
-    return x + width + GAP + 4
-  }, 0)
-
-  vSpaceConsumed += FONT_SIZES.NORMAL + PADDING * 2
+    });
+  }
 
   return {vSpaceConsumed}
-
 }
