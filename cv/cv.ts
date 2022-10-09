@@ -10,8 +10,8 @@ import fontkit from '@pdf-lib/fontkit';
 import * as fs from "fs";
 import { drawInfo } from "./cv-info";
 
-const COLUMN1_WIDTH = 180
-const COLUMN_GAP = 20
+const COLUMN1_WIDTH = 188
+const COLUMN_GAP = 18
 
 export async function createPDF() {
   const document = await PDFDocument.create();

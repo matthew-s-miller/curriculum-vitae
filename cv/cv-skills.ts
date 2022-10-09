@@ -1,6 +1,6 @@
 import { rgb } from "pdf-lib";
 import { SKILLS } from "./data";
-import { FONT_SIZES } from "./style";
+import { COLORS, FONT_SIZES } from "./style";
 import { Context, Cursor, drawSectionHeader, measureTextWidth } from "./util";
 
 const RADIUS = 4.5
@@ -17,8 +17,8 @@ export function drawSkills(ctx: Context, cursor: Cursor): {vSpaceConsumed: numbe
     .reduce((max, skill) => Math.max(max, measureTextWidth(skill.name, ctx.fonts.normal, FONT_SIZES.NORMAL)), 0)
 
   const colors = {
-    'on': rgb(0.5, 0.5, 0.5),
-    'off': rgb(0.8, 0.8, 0.8)
+    'on': COLORS.neutral,
+    'off': COLORS.fade
   }
 
   for (let i = 0; i < SKILLS.length; i++) {

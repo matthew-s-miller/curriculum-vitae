@@ -92,7 +92,6 @@ export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor, yP
       start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
       end: {x: cursor.xStart + cursor.hWidth * 0.25, y: yPosOld},
       thickness: 1,
-      color: rgb(0,0,0)
     })
   }
 
@@ -106,15 +105,4 @@ export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor, yP
   })
 
   return {vSpaceConsumed: headingHeight + HEADING_GAP * 2}
-}
-
-export function roundedRectPath(width: number, height: number, borderRadius: number): string {
-  return `M0 ${borderRadius} 
-    A${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} 0 
-    L${width - borderRadius} 0 
-    A${borderRadius} ${borderRadius} 0 0 1 ${width} ${borderRadius}
-    L${width} ${height - borderRadius}
-    A${borderRadius} ${borderRadius} 0 0 1 ${width - borderRadius} ${height}
-    L${borderRadius} ${height}
-    A${borderRadius} ${borderRadius} 0 0 1 0 ${height - borderRadius} Z`.replace(/\s+/g,' ')
 }

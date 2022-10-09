@@ -1,7 +1,8 @@
-import { measureTextWidth, Context, Cursor, roundedRectPath, writeMultilineText, drawSectionHeader } from "./util";
+import { measureTextWidth, Context, Cursor, writeMultilineText, drawSectionHeader } from "./util";
 import { CAREER } from "./data";
-import { FONT_SIZES, TIMELINE_OFFSET, TIMELINE_WIDTH } from "./style";
+import { COLORS, FONT_SIZES, TIMELINE_OFFSET } from "./style";
 import { rgb } from "pdf-lib";
+import { roundedRectPath } from "./icons";
 
 const DETAILS_MARGIN = 16
 const TECH_SPACING = 4
@@ -38,7 +39,7 @@ function drawCareerRow(row: typeof CAREER[number],
     x: cursor.xStart + TIMELINE_OFFSET,
     y: yPos - FONT_SIZES.TINY * 0.75,
     size: 1.5,
-    color: rgb(0.2,0.2,0.2)
+    color: COLORS.dark
   })
 
   if (typeof yPosOld === 'number') {
@@ -46,23 +47,23 @@ function drawCareerRow(row: typeof CAREER[number],
       start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
       end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
       thickness: 1,
-      color: rgb(0.2, 0.2, 0.2)
+      color: COLORS.neutral
     })
   }
 
   let vSpaceConsumed = 0
 
-  page.drawText(row.company, {
+  page.drawText(row.role, {
     x: cursor.xStart,
     y: yPos - FONT_SIZES.NORMAL,
     font: ctx.fonts.bold,
     size: FONT_SIZES.NORMAL,
   });
 
-  const companyWidth = measureTextWidth(row.company, ctx.fonts.bold, FONT_SIZES.NORMAL)
+  const rolwWidth = measureTextWidth(row.role, ctx.fonts.bold, FONT_SIZES.NORMAL)
 
   page.drawText(`| ${row.period}`, {
-    x: cursor.xStart + companyWidth + 4,
+    x: cursor.xStart + rolwWidth + 4,
     y: yPos - FONT_SIZES.NORMAL, // align with company font
     font: ctx.fonts.light,
     size: FONT_SIZES.TINY,
@@ -70,7 +71,7 @@ function drawCareerRow(row: typeof CAREER[number],
 
   const periodWidth = measureTextWidth(row.period, ctx.fonts.light, FONT_SIZES.TINY)
 
-  appendTech(row.tech, ctx, {...cursor, yPos, xStart: cursor.xStart + companyWidth + periodWidth + 20})
+  appendTech(row.tech, ctx, {...cursor, yPos, xStart: cursor.xStart + rolwWidth + periodWidth + 20})
 
   vSpaceConsumed += FONT_SIZES.NORMAL
   yPos -= FONT_SIZES.NORMAL
@@ -91,7 +92,7 @@ function drawDetails(row: typeof CAREER[number], ctx: Context, cursor: Cursor): 
   let vSpaceConsumed = DETAILS_MARGIN
   let yPos = cursor.yPos - DETAILS_MARGIN
 
-  ctx.page.drawText(row.role, {
+  ctx.page.drawText(row.company, {
     x: cursor.xStart + DETAILS_MARGIN / 2,
     y: yPos - FONT_SIZES.NORMAL,
     font: ctx.fonts.normalItalic,
@@ -115,7 +116,7 @@ function appendTech(tech: string[], ctx: Context, cursor: Cursor) {
     ctx.page.drawSvgPath(roundedRectPath(width + CHIP_PADDING * 2, FONT_SIZES.NORMAL + 2, (FONT_SIZES.NORMAL + 2) / 2), {
       x: x - CHIP_PADDING,
       y: yPos - CHIP_PADDING / 2 + 2,
-      color: rgb(0.9, 0.9, 0.9),
+      color: COLORS.fade,
     })
 
     ctx.page.drawText(tech, {
@@ -123,7 +124,7 @@ function appendTech(tech: string[], ctx: Context, cursor: Cursor) {
       y: yPos - FONT_SIZES.NORMAL, // align against row text
       font: ctx.fonts.light,
       size: FONT_SIZES.TINY,
-      color: rgb(0.2, 0.2, 0.2)
+      color: COLORS.less_dark
     })
 
     return x + width + TECH_SPACING + CHIP_PADDING * 2

@@ -1,5 +1,5 @@
-import { Context, Cursor, drawSectionHeader, measureTextWidth } from "./util";
-import { HEADER, MORE_INFO } from "./data";
+import { Context, Cursor, drawSectionHeader } from "./util";
+import { MORE_INFO } from "./data";
 import { FONT_SIZES } from "./style";
 
 const INFO_GAP = 8
@@ -23,5 +23,5 @@ export function drawInfo(ctx: Context, cursor: Cursor): {vSpaceConsumed: number}
     iPos -= (FONT_SIZES.TINY + INFO_GAP)
   })
 
-  return  {vSpaceConsumed: vSpaceConsumed + HEADER.info.length * (FONT_SIZES.TINY + (INFO_GAP - 1)) }
+  return  {vSpaceConsumed: vSpaceConsumed + MORE_INFO.length * (FONT_SIZES.TINY + (INFO_GAP - 1)) }
 }

@@ -3,11 +3,8 @@
 export const HEADER = {
   title: "MATTHEW MILLER",
   subtitle: "SOFTWARE DEVELOPER",
-  info: [
-    "Perth, Australia",
-    "+61 (0) 4093 88 123",
-    "miller.matthew@gmail.com",
-  ]
+  location: "Perth, Australia",
+  contact: ["0409 388 123", "miller.matthew@gmail.com"],
 }
 
 export const HELLO = `I am a full-stack software engineer with over 20 years of experience. Recently, I've
@@ -53,7 +50,7 @@ export const SKILLS = [
     ]
   },
   {
-    type: 'Back End',
+    type: 'Server Side',
     skills: [
       {name: 'Java', level: 5},
       {name: 'NodeJS', level: 4},

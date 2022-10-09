@@ -1,10 +1,12 @@
 import { Context, Cursor, measureTextWidth } from "./util";
 import { HEADER } from "./data";
-import { FONT_SIZES } from "./style";
+import { COLORS, FONT_SIZES } from "./style";
 import { rgb } from "pdf-lib";
+import { circleBorderPath, pinPath } from "./icons";
 import * as fs from "fs";
 
 const MUGSHOT_SIZE = 64
+const ICON_SIZE = FONT_SIZES.NORMAL
 const TITLE_GAP = 0
 const SUBTITLE_GAP = 16
 
@@ -29,13 +31,13 @@ export async function drawHeader(ctx: Context, cursor: Cursor): Promise<{vSpaceC
   });
 
   ctx.page.drawSvgPath(
-    `M0 0 L0 2 L1 2 A1 1 0 0 1 1 0 A1 1 0 0 1 1 2 L2 2 L 2 0 Z`,
+    circleBorderPath(),
     {
       x: cursor.xStart + imageX,
       y: yPos,
       scale: MUGSHOT_SIZE / 2,
-      color: rgb(1, 1, 1),
-      borderColor: rgb(1, 1, 1),
+      color: COLORS.white,
+      borderColor: COLORS.white,
       borderWidth: 0.1
     }
   )
@@ -82,16 +84,44 @@ export async function drawHeader(ctx: Context, cursor: Cursor): Promise<{vSpaceC
   vSpaceConsumed += SUBTITLE_GAP
   yPos -= SUBTITLE_GAP
 
-  vSpaceConsumed += HEADER.info.reduce((vSpace, info) => {
-    const infoWidth = measureTextWidth(info, ctx.fonts.normal, FONT_SIZES.TINY)
-    ctx.page.drawText(info, {
-      x: cursor.xStart,
-      y: yPos - vSpace - FONT_SIZES.TINY,
-      font: ctx.fonts.normal,
+  {
+    // location
+    const infoWidth = ICON_SIZE + 6 + measureTextWidth(HEADER.location, ctx.fonts.light, FONT_SIZES.TINY)
+
+    ctx.page.drawSvgPath(pinPath(ICON_SIZE), {
+      x: cursor.xStart + (cursor.hWidth - infoWidth) / 2,
+      y: yPos,
+      color: COLORS.less_dark,
+      borderWidth: 0
+    })
+
+    ctx.page.drawText(HEADER.location, {
+      x: cursor.xStart + (cursor.hWidth - infoWidth) / 2 + ICON_SIZE + 6,
+      y: yPos - FONT_SIZES.TINY,
+      font: ctx.fonts.light,
       size: FONT_SIZES.TINY,
     });
-    return vSpace + FONT_SIZES.TINY + INFO_GAP
-  }, 0)
+
+    vSpaceConsumed += FONT_SIZES.TINY + SUBTITLE_GAP
+    yPos -= (FONT_SIZES.TINY + SUBTITLE_GAP)
+  }
+
+  {
+    // contact
+    const contact = HEADER.contact.join(' | ')
+    const contactWidth = measureTextWidth(contact, ctx.fonts.light, FONT_SIZES.TINY)
+
+    ctx.page.drawText(contact, {
+      x: cursor.xStart,
+      y: yPos - FONT_SIZES.TINY,
+      font: ctx.fonts.light,
+      size: FONT_SIZES.TINY,
+    });
+
+    vSpaceConsumed += FONT_SIZES.TINY
+  }
+
+  vSpaceConsumed += SUBTITLE_GAP
 
   return  {vSpaceConsumed: vSpaceConsumed - INFO_GAP }
 }

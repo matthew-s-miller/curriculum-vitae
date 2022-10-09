@@ -1,6 +1,6 @@
 import { rgb } from "pdf-lib";
 import { EDUCATION } from "./data";
-import { FONT_SIZES, TIMELINE_OFFSET } from "./style";
+import { COLORS, FONT_SIZES, TIMELINE_OFFSET } from "./style";
 import { Context, Cursor, drawSectionHeader, measureTextWidth } from "./util";
 
 const LINE_SPACING = FONT_SIZES.NORMAL + 2
@@ -30,10 +30,10 @@ export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cu
 
   // draw the timeline
   ctx.page.drawCircle({
-    x: cursor.xStart - 5,
+    x: cursor.xStart + TIMELINE_OFFSET,
     y: yPos - FONT_SIZES.TINY * 0.75,
     size: 1.5,
-    color: rgb(0.2,0.2,0.2)
+    color: COLORS.less_dark
   })
 
   if (typeof yPosOld === 'number') {
@@ -41,7 +41,7 @@ export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cu
       start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
       end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
       thickness: 1,
-      color: rgb(0.2, 0.2, 0.2)
+      color: COLORS.less_dark
     })
   }
 
