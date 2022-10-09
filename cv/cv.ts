@@ -7,10 +7,10 @@ import { drawHello } from "./cv-hello";
 import { drawEducation } from "./cv-education";
 import { drawSkills } from "./cv-skills";
 import fontkit from '@pdf-lib/fontkit';
+import { drawAbout } from "./cv-about";
 import * as fs from "fs";
-import { drawInfo } from "./cv-info";
 
-const COLUMN1_WIDTH = 188
+const COLUMN1_WIDTH = 240 // 188
 const COLUMN_GAP = 18
 
 export async function createPDF() {
@@ -50,22 +50,26 @@ async function renderColumn1(context: Context, cursor: Cursor) {
 
   yPos -= (await drawHeader(context, {...cursor, yPos})).vSpaceConsumed
 
-  yPos -= 20
+  // yPos -= 20
 
   yPos -= drawHello(context, {...cursor, yPos}).vSpaceConsumed
 
-  yPos -= 20
+  yPos -= 10
 
   yPos -= drawSkills(context, {...cursor, yPos}).vSpaceConsumed
-  yPos -= drawInfo(context, {...cursor, yPos}).vSpaceConsumed
+
+  yPos -= 4
+
+  yPos -= drawEducation(context, {...cursor, yPos}).vSpaceConsumed
+  // yPos -= drawInfo(context, {...cursor, yPos}).vSpaceConsumed
+
+  drawAbout(context, {...cursor, yPos}) // hWidth: context.page.getWidth() - 2 * PAGE_SETUP.hMargin
 }
 
 function renderColumn2(context: Context, cursor: Cursor) {
   let {yPos} = cursor
 
-  yPos -= 20
+  yPos -= 0
   yPos -= drawCareer(context, {...cursor,  yPos}).vSpaceConsumed
-  yPos -= 20
-  yPos -= drawEducation(context, {...cursor, yPos}).vSpaceConsumed
 }
 

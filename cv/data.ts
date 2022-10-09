@@ -9,7 +9,7 @@ export const HEADER = {
 
 export const HELLO = `I am a full-stack software engineer with 25 years of experience. Recently, I've
 built a lot of web front ends using tooling such as Angular, Vue and React. I've used Java throughout most
-of my career, and more recently have delevoped an affinity for Typescript.`
+of my career, and recently have developed an affinity with Typescript.`
 
 export const MORE_INFO = [
   "linkedin.com/in/matthewmillerprofile",
@@ -31,7 +31,7 @@ export const EDUCATION = [
   },
   {
     period: "2017",
-    institution: "Stamford University (Coursera)",
+    institution: "Stanford University (Coursera)",
     attainment: "Certificate in Machine Learning",
   }
 ]
@@ -45,8 +45,8 @@ export const SKILLS = [
       {name: 'Vue', level: 5},
       {name: 'React', level: 4},
       {name: 'HTML & CSS', level: 4},
-      {name: 'SVG', level: 5},
-      {name: 'UI Design', level: 3}
+      // {name: 'SVG', level: 5},
+      // {name: 'UI Design', level: 3}
     ]
   },
   {
@@ -54,9 +54,9 @@ export const SKILLS = [
     skills: [
       {name: 'Java', level: 5},
       {name: 'NodeJS', level: 4},
+      {name: 'Groovy', level: 4},
       {name: 'Python', level: 3},
-      {name: 'Docker', level: 2},
-      {name: 'AWS', level: 2},
+      {name: 'Rust', level: 2},
     ]
   },
   {
@@ -74,43 +74,45 @@ export const SKILLS = [
 export const CAREER = [
   {
     company: "ShockWave Technologies",
-    period: "2022",
+    period: "2022 - current",
     role: "Consultant",
     description: `Developed a tool for modelling terrain and planning blasts. Implemented in React, using IndexedDB for storage, the
-    systems allows for the input of a site dimensions, drilling topology and materials composition. Showing a 3D model of the plan, 
-    using Three.js and React Three Fiber`,
+    systems allows for the input of site dimensions, drilling topology and explosive composition. The React based UI shows a realtime
+    3D model of the site, powered by Three.js`,
     tech: ["React", "Three.js"]
   },
   {
     company: "Gaia Resources",
     period: "2022",
     role: "Front End Developer",
-    description: `Worked on a project to develop a spreadsheet UI used for analysis of Biodiversity data.
-    The User Interface was based around the development of a DataGrid component developed in Vue 3. The DataGrid
-    provided a full suite of rich features, including virtual scrolling, cell selection, drag n drop.`,
-    tech: ["Vue", "Python"]
+    description: `A short project to develop a spreadsheet UI used for analysis and classification of species and flora
+    sightings. The User Interface was based around the development of a DataGrid component developed in Vue 3. The DataGrid
+    provided a full suite of rich features, including virtual scrolling, column resizing, cell selection and drag 'n drop.`,
+    tech: ["Vue", "Python", "MongoDB"]
   },
   {
     company: "MyPass Global",
     period: "2018-21",
     role: "Senior/Lead Developer",
-    description: `Designed and developed front-end, middle-tier and backend software components
-    that together comprised MyPass. I commenced this project when MyPass was at it's infancy, and worked closely
-    with the CEO and key stakeholders to design a Knowledge Based built as a graph database`,
+    description: `Responsible for all aspects of MyPass' design and architecture. Additionally consulted to clients
+    and managed key integrations. MyPass' architecture was built around the idea of using a graph database to model
+    relationships between Workers and Employers, and the applicatability of Certifications and competency records`,
     tech: ["Angular", "Java", "Neo4J"]
   },
   {
     company: "Onyx Services",
     period: "2017",
     role: "Applications Architect",
-    description: `Developed the web front end to a Gas Trading application using Angular. `,
-    tech: ["Angular", "Java"]
+    description: `Developed the web front end to a Gas Trading application using Angular.
+    The front end architecure made use of RXJS to provide real-time position projections. 
+    This design greatly influenced my approach to front end UIs going forward`,
+    tech: ["Angular", "Java", "Postgresql"]
   },
   {
     company: "SmartBeat",
     period: "2016",
     role: "Consultant",
-    description: `Developed the web front end to an analytics platform. `,
+    description: `Developed the web front end to an analytics dashboard. `,
     tech: ["Vanilla JS"]
   },
   {
@@ -118,13 +120,15 @@ export const CAREER = [
     period: "2008-15",
     role: "Senior/Lead Developer",
     description: `Developer for numerous projects over a 7 year timeframe. Projects ranged from front-end
-    work, such as Synergy 'MyAccount', to internal projects, such as 'Stars', a bespoke energy trading platform `,
+    applications, such as Synergy 'MyAccount', to internal projects such as energy trading systems. Part
+    of my role was to lead development teams of up to 6 personnel, provide mentoring, and overall technical
+    guidance`,
     tech: ["AngularJS", "Java", "Oracle"]
   },
   {
     company: "AOL UK",
     period: "2007-08",
-    role: "Contractor",
+    role: "Java Developer",
     description: "6 month contract",
     tech: ["Java"]
   },
@@ -138,29 +142,35 @@ export const CAREER = [
   {
     company: "Reed Elsievier UK",
     period: "2005-08",
-    role: "Contractor",
+    role: "Java Developer",
     description: "Developed a Distributed 'Terminology' Service",
     tech: ["Java"]
   },
   {
     company: "BankWest",
     period: "2005",
-    role: "Early Career",
+    role: "Java Developer",
     description: "Mostly Java based projects",
     tech: ["Java"]
   },
   {
     company: "eBooks Corporation",
     period: "2004",
-    role: "Early Career",
+    role: "Java Developer",
     description: "Mostly Java based projects",
     tech: ["Java"]
   },
   {
     company: "ASGARD Wealth Solutions",
     period: "1998-03",
-    role: "Early Career",
+    role: "Analyst / Programmer",
     description: "Mostly Java based projects",
-    tech: ["Java", "C++", "Oracle"]
+    tech: [] // "Java", "C++", "Oracle"
   }
 ]
+
+export const ABOUT = [
+  "CV source code: github.com/matthew-s-miller",
+  "See also: stackoverflow.com/users/2431784/miller"
+]
+// or connect on LinkedIn linkedin.com/in/matthewmillerprofile

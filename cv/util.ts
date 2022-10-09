@@ -1,5 +1,5 @@
 import { PDFDocument, PDFFont, PDFPage, rgb } from "pdf-lib";
-import { FONT_SIZES, TIMELINE_OFFSET } from "./style";
+import { COLORS, FONT_SIZES, TIMELINE_OFFSET } from "./style";
 
 export interface Context {
   document: PDFDocument,
@@ -44,13 +44,13 @@ export function writeMultilineText(text: string, page: PDFPage, cursor: Cursor, 
   lines.forEach((line, i) => {
     page.drawText(line, {
       x: cursor.xStart,
-      y: cursor.yPos - fontSize * (i + 1),
+      y: cursor.yPos - (fontSize + 2) * (i + 1),
       font,
       size: fontSize,
     })
   })
 
-  return { vSpaceConsumed: lines.length * fontSize }
+  return { vSpaceConsumed: lines.length * (fontSize + 2) }
 }
 
 
@@ -91,6 +91,7 @@ export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor, yP
     ctx.page.drawLine({
       start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
       end: {x: cursor.xStart + cursor.hWidth * 0.25, y: yPosOld},
+      color: COLORS.neutral,
       thickness: 1,
     })
   }

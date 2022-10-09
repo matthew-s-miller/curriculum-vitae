@@ -1,7 +1,7 @@
 import { SKILLS } from "./data";
 import { stackPath } from "./icons";
 import { COLORS, FONT_SIZES } from "./style";
-import { Context, Cursor } from "./util";
+import { Context, Cursor, drawSectionHeader } from "./util";
 
 const RADIUS = 4.5
 const GAP = 1.5
@@ -15,14 +15,14 @@ const X = 80
 
 export function drawSkills(ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
 
-    ctx.page.drawText('My skillset includes...', {
-      x: cursor.xStart,
-      y: cursor.yPos - FONT_SIZES.NORMAL,
-      font: ctx.fonts.light,
-      size: FONT_SIZES.NORMAL,
-    })
+    // ctx.page.drawText('My skillset includes...', {
+    //   x: cursor.xStart,
+    //   y: cursor.yPos - FONT_SIZES.NORMAL,
+    //   font: ctx.fonts.light,
+    //   size: FONT_SIZES.NORMAL,
+    // })
 
-  let { vSpaceConsumed } = {vSpaceConsumed: FONT_SIZES.NORMAL * 2} //  drawSectionHeader('SKILLS', ctx, cursor)
+  let { vSpaceConsumed } = drawSectionHeader('SKILLS', ctx, cursor) //  {vSpaceConsumed: FONT_SIZES.NORMAL * 2} //
   let yPos = cursor.yPos - vSpaceConsumed
 
   // const maxSkillWidth = SKILLS
@@ -69,7 +69,7 @@ function drawStack({x, y, width, height}: {x: number, y: number, width: number, 
     ctx.page.drawSvgPath(stackPath(width, height, lvl), {
       x,
       y,
-      color: lvl === level ? COLORS.neutral : COLORS.fade,
+      color: lvl === level ? COLORS.less_dark : COLORS.fade,
       borderColor: COLORS.neutral,
       borderWidth: 0.5
     })

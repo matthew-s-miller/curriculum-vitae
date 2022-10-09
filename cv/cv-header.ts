@@ -112,7 +112,7 @@ export async function drawHeader(ctx: Context, cursor: Cursor): Promise<{vSpaceC
     const contactWidth = measureTextWidth(contact, ctx.fonts.light, FONT_SIZES.TINY)
 
     ctx.page.drawText(contact, {
-      x: cursor.xStart,
+      x: cursor.xStart + (cursor.hWidth - contactWidth) / 2,
       y: yPos - FONT_SIZES.TINY,
       font: ctx.fonts.light,
       size: FONT_SIZES.TINY,

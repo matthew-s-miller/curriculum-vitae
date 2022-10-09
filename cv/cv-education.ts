@@ -9,14 +9,14 @@ export function drawEducation(ctx: Context, cursor: Cursor): {vSpaceConsumed: nu
 
   let yPosOld: number = cursor.yPos
 
-  let titleSpaceConsumed = drawSectionHeader('ACADEMIA', ctx, cursor, yPosOld).vSpaceConsumed
+  let titleSpaceConsumed = drawSectionHeader('ATTAINMENTS', ctx, cursor).vSpaceConsumed
 
   let yPos = cursor.yPos
   const vSpaceConsumed = EDUCATION.reduce((vSpace, row) => {
     
     const extraSpace = drawEducationRow(row, ctx, {...cursor, yPos: yPos - vSpace}, yPosOld).vSpaceConsumed + vSpace + FONT_SIZES.NORMAL
     yPosOld = yPos - vSpace
-    return extraSpace
+    return extraSpace + 6
   }, titleSpaceConsumed)
 
   return { vSpaceConsumed }
@@ -29,20 +29,20 @@ export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cu
   let vSpaceConsumed = 0 
 
   // draw the timeline
-  ctx.page.drawCircle({
-    x: cursor.xStart + TIMELINE_OFFSET,
-    y: yPos - FONT_SIZES.TINY * 0.75,
-    size: 1.5,
-    color: COLORS.less_dark
-  })
+  // ctx.page.drawCircle({
+  //   x: cursor.xStart + TIMELINE_OFFSET,
+  //   y: yPos - FONT_SIZES.TINY * 0.75,
+  //   size: 1.5,
+  //   color: COLORS.less_dark
+  // })
 
   if (typeof yPosOld === 'number') {
-    ctx.page.drawLine({
-      start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
-      end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
-      thickness: 1,
-      color: COLORS.less_dark
-    })
+    // ctx.page.drawLine({
+    //   start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
+    //   end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
+    //   thickness: 1,
+    //   color: COLORS.less_dark
+    // })
   }
 
   ctx.page.drawText(row.institution, {
@@ -74,16 +74,19 @@ export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cu
   // const linesConsumed = ctx.page.drawText(row.attainment, ctx.page, {...cursor, yPos }, ctx.fonts.normal, FONT_SIZES.NORMAL).vSpaceConsumed
   
   vSpaceConsumed += LINE_SPACING
+  yPos -= LINE_SPACING
 
   if (row.level) {
     const attainmentWidth = measureTextWidth(row.attainment, ctx.fonts.normal, FONT_SIZES.NORMAL)
 
     ctx.page.drawText(row.level, {
-      x: cursor.xStart + attainmentWidth + 4,
+      x: cursor.xStart,
       y: yPos - FONT_SIZES.NORMAL,
       font: ctx.fonts.bold,
       size: FONT_SIZES.NORMAL,
-    });
+    })
+
+    vSpaceConsumed += LINE_SPACING
   }
 
   return {vSpaceConsumed}

@@ -1,7 +1,6 @@
 import { measureTextWidth, Context, Cursor, writeMultilineText, drawSectionHeader } from "./util";
 import { CAREER } from "./data";
 import { COLORS, FONT_SIZES, TIMELINE_OFFSET } from "./style";
-import { rgb } from "pdf-lib";
 import { roundedRectPath } from "./icons";
 
 const DETAILS_MARGIN = 16
@@ -35,13 +34,6 @@ function drawCareerRow(row: typeof CAREER[number],
   let { yPos } = cursor
 
   // draw the timeline
-  page.drawCircle({
-    x: cursor.xStart + TIMELINE_OFFSET,
-    y: yPos - FONT_SIZES.TINY * 0.75,
-    size: 1.5,
-    color: COLORS.dark
-  })
-
   if (typeof yPosOld === 'number') {
     page.drawLine({
       start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
@@ -50,6 +42,13 @@ function drawCareerRow(row: typeof CAREER[number],
       color: COLORS.neutral
     })
   }
+
+  page.drawCircle({
+    x: cursor.xStart + TIMELINE_OFFSET,
+    y: yPos - FONT_SIZES.TINY * 0.75,
+    size: 1.5,
+    color: COLORS.neutral
+  })
 
   let vSpaceConsumed = 0
 
@@ -60,18 +59,37 @@ function drawCareerRow(row: typeof CAREER[number],
     size: FONT_SIZES.NORMAL,
   });
 
-  const rolwWidth = measureTextWidth(row.role, ctx.fonts.bold, FONT_SIZES.NORMAL)
+  let hWidth = measureTextWidth(row.role, ctx.fonts.bold, FONT_SIZES.NORMAL)
 
   page.drawText(`| ${row.period}`, {
-    x: cursor.xStart + rolwWidth + 4,
+    x: cursor.xStart + hWidth + 4,
     y: yPos - FONT_SIZES.NORMAL, // align with company font
     font: ctx.fonts.light,
     size: FONT_SIZES.TINY,
   });
 
-  const periodWidth = measureTextWidth(row.period, ctx.fonts.light, FONT_SIZES.TINY)
+  hWidth += measureTextWidth(row.period, ctx.fonts.light, FONT_SIZES.TINY) + 16
 
-  appendTech(row.tech, ctx, {...cursor, yPos, xStart: cursor.xStart + rolwWidth + periodWidth + 20})
+  if (!details) {
+    // show the company inline
+    ctx.page.drawText(row.company, {
+      x: cursor.xStart + hWidth,
+      y: yPos - FONT_SIZES.NORMAL,
+      font: ctx.fonts.normalItalic,
+      size: FONT_SIZES.NORMAL,
+    });
+
+    hWidth += measureTextWidth(row.company, ctx.fonts.normalItalic, FONT_SIZES.NORMAL) + 10
+  } else {
+    hWidth += 4
+  }
+
+  appendTech(row.tech, ctx, {...cursor, yPos, xStart: cursor.xStart + hWidth})
+
+  if (!details) {
+    vSpaceConsumed += FONT_SIZES.NORMAL
+    yPos -= FONT_SIZES.NORMAL
+  }
 
   vSpaceConsumed += FONT_SIZES.NORMAL
   yPos -= FONT_SIZES.NORMAL
