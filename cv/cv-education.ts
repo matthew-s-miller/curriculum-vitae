@@ -9,7 +9,7 @@ export function drawEducation(ctx: Context, cursor: Cursor): {vSpaceConsumed: nu
 
   let yPosOld: number = cursor.yPos
 
-  let titleSpaceConsumed = drawSectionHeader('EDUCATION & CERTIFICATES', ctx, cursor, yPosOld).vSpaceConsumed
+  let titleSpaceConsumed = drawSectionHeader('ACADEMIA', ctx, cursor, yPosOld).vSpaceConsumed
 
   let yPos = cursor.yPos
   const vSpaceConsumed = EDUCATION.reduce((vSpace, row) => {

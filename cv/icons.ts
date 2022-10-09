@@ -18,3 +18,10 @@ export function pinPath(width: number, height: number = width): string {
   const stretch = 0.48
   return `M${width/2} ${height} C${width * (1 + stretch)} 0 ${-width * stretch} 0 ${width/2} ${height} Z`
 }
+
+export function stackPath(width: number, height: number, level: 1|2|3): string {
+  const hypot = Math.floor(height/2)
+  const h = Math.sqrt(hypot*hypot/2)
+  const h0 = (height - h) * (level-1) / 3
+  return `M${h} ${h0} l${width - h} 0 l${-h} ${h} l${-width + h} 0 Z`
+}

@@ -7,7 +7,7 @@ export const HEADER = {
   contact: ["0409 388 123", "miller.matthew@gmail.com"],
 }
 
-export const HELLO = `I am a full-stack software engineer with over 20 years of experience. Recently, I've
+export const HELLO = `I am a full-stack software engineer with 25 years of experience. Recently, I've
 built a lot of web front ends using tooling such as Angular, Vue and React. I've used Java throughout most
 of my career, and more recently have delevoped an affinity for Typescript.`
 
@@ -62,8 +62,8 @@ export const SKILLS = [
   {
     type: 'Database',
     skills: [
-      {name: 'Neo4J', level: 5},
       {name: 'RDBMS', level: 5},
+      {name: 'Neo4J', level: 5},
       {name: 'MongoDB', level: 4},
       {name: 'IndexedDB', level: 4},
       {name: 'Lucene', level: 3}
@@ -79,7 +79,7 @@ export const CAREER = [
     description: `Developed a tool for modelling terrain and planning blasts. Implemented in React, using IndexedDB for storage, the
     systems allows for the input of a site dimensions, drilling topology and materials composition. Showing a 3D model of the plan, 
     using Three.js and React Three Fiber`,
-    tech: ["React"]
+    tech: ["React", "Three.js"]
   },
   {
     company: "Gaia Resources",
@@ -97,7 +97,7 @@ export const CAREER = [
     description: `Designed and developed front-end, middle-tier and backend software components
     that together comprised MyPass. I commenced this project when MyPass was at it's infancy, and worked closely
     with the CEO and key stakeholders to design a Knowledge Based built as a graph database`,
-    tech: ["Angular", "Java"]
+    tech: ["Angular", "Java", "Neo4J"]
   },
   {
     company: "Onyx Services",
@@ -119,7 +119,7 @@ export const CAREER = [
     role: "Senior/Lead Developer",
     description: `Developer for numerous projects over a 7 year timeframe. Projects ranged from front-end
     work, such as Synergy 'MyAccount', to internal projects, such as 'Stars', a bespoke energy trading platform `,
-    tech: ["AngularJS", "Java"]
+    tech: ["AngularJS", "Java", "Oracle"]
   },
   {
     company: "AOL UK",
@@ -161,6 +161,6 @@ export const CAREER = [
     period: "1998-03",
     role: "Early Career",
     description: "Mostly Java based projects",
-    tech: ["Java","C++"]
+    tech: ["Java", "C++", "Oracle"]
   }
 ]

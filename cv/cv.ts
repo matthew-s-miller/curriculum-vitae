@@ -50,7 +50,12 @@ async function renderColumn1(context: Context, cursor: Cursor) {
 
   yPos -= (await drawHeader(context, {...cursor, yPos})).vSpaceConsumed
 
+  yPos -= 20
+
   yPos -= drawHello(context, {...cursor, yPos}).vSpaceConsumed
+
+  yPos -= 20
+
   yPos -= drawSkills(context, {...cursor, yPos}).vSpaceConsumed
   yPos -= drawInfo(context, {...cursor, yPos}).vSpaceConsumed
 }

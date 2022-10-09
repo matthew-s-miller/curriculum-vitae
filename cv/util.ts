@@ -60,7 +60,7 @@ export function wrapText(text: string, space: number | readonly [number, number]
 
   let line = '';
   let width = 0;
-  let availableSpace: number = Array.isArray(space) ? space[0] : space
+  let availableSpace: number = Array.isArray(space) ? space[1] - space[0] : space as number
 
   for (let n = 0; n < words.length; n++) {
     const testLine = line ? line + ' ' + words[n] : words[n];
