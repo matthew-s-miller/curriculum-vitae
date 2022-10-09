@@ -1,7 +1,7 @@
 
 export const PAGE_SETUP = {
   hMargin: 32,
-  vMargin: 40
+  vMargin: 32
 }
 
 export const FONT_SIZES = {
@@ -12,3 +12,4 @@ export const FONT_SIZES = {
 }
 
 export const TIMELINE_WIDTH = 140
+export const TIMELINE_OFFSET = -5

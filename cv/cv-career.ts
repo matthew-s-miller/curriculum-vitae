@@ -1,6 +1,6 @@
-import { measureTextWidth, Context, Cursor, wrapText, roundedRectPath, writeMultilineText, drawSectionHeader } from "./util";
+import { measureTextWidth, Context, Cursor, roundedRectPath, writeMultilineText, drawSectionHeader } from "./util";
 import { CAREER } from "./data";
-import { FONT_SIZES } from "./style";
+import { FONT_SIZES, TIMELINE_OFFSET, TIMELINE_WIDTH } from "./style";
 import { rgb } from "pdf-lib";
 
 const DETAILS_MARGIN = 16
@@ -9,10 +9,10 @@ const CHIP_PADDING = 5
 
 export function drawCareer(ctx: Context, cursor: Cursor): {vSpaceConsumed: number, yPosOld: number} {
 
-  const { vSpaceConsumed } = drawSectionHeader('MY CAREER', ctx, cursor)
+  let yPosOld: number = cursor.yPos
+  const { vSpaceConsumed } = drawSectionHeader('MY CAREER', ctx, cursor, cursor.yPos)
 
   let yPos = cursor.yPos - vSpaceConsumed
-  let yPosOld = undefined
   let totalSpaceConsumed = vSpaceConsumed
   for (let i = 0; i < CAREER.length; i++) {
     const {vSpaceConsumed} = drawCareerRow(CAREER[i], ctx, {...cursor, yPos}, i < 6, yPosOld)
@@ -35,7 +35,7 @@ function drawCareerRow(row: typeof CAREER[number],
 
   // draw the timeline
   page.drawCircle({
-    x: cursor.xStart - 5,
+    x: cursor.xStart + TIMELINE_OFFSET,
     y: yPos - FONT_SIZES.TINY * 0.75,
     size: 1.5,
     color: rgb(0.2,0.2,0.2)
@@ -43,8 +43,8 @@ function drawCareerRow(row: typeof CAREER[number],
 
   if (typeof yPosOld === 'number') {
     page.drawLine({
-      start: {x: cursor.xStart - 5, y: yPosOld - FONT_SIZES.NORMAL * 0.75},
-      end: {x: cursor.xStart - 5, y: yPos - FONT_SIZES.NORMAL * 0.75},
+      start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
+      end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
       thickness: 1,
       color: rgb(0.2, 0.2, 0.2)
     })
@@ -75,13 +75,13 @@ function drawCareerRow(row: typeof CAREER[number],
   vSpaceConsumed += FONT_SIZES.NORMAL
   yPos -= FONT_SIZES.NORMAL
 
-  if (details && row.company !== 'SmartBeat') {
+  if (details) {
     const vDetailsSpaceConsumed = drawDetails(row, ctx, {...cursor, yPos}).vSpaceConsumed
     vSpaceConsumed += vDetailsSpaceConsumed
     yPos -= vDetailsSpaceConsumed
   } else {
-    vSpaceConsumed += DETAILS_MARGIN
-    yPos -= DETAILS_MARGIN
+    vSpaceConsumed += 4
+    yPos -= 4
   }
 
   return {vSpaceConsumed}

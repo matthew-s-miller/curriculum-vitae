@@ -58,7 +58,9 @@ async function renderColumn1(context: Context, cursor: Cursor) {
 function renderColumn2(context: Context, cursor: Cursor) {
   let {yPos} = cursor
 
+  yPos -= 20
   yPos -= drawCareer(context, {...cursor,  yPos}).vSpaceConsumed
+  yPos -= 20
   yPos -= drawEducation(context, {...cursor, yPos}).vSpaceConsumed
 }
 

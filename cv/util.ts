@@ -1,5 +1,5 @@
-import { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
-import { FONT_SIZES } from "./style";
+import { PDFDocument, PDFFont, PDFPage, rgb } from "pdf-lib";
+import { FONT_SIZES, TIMELINE_OFFSET } from "./style";
 
 export interface Context {
   document: PDFDocument,
@@ -85,7 +85,16 @@ export function wrapText(text: string, space: number | readonly [number, number]
 
 const HEADING_GAP = 14
 
-export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
+export function drawSectionHeader(text: string, ctx: Context, cursor: Cursor, yPosOld?: number): {vSpaceConsumed: number} {
+
+  if (typeof yPosOld === 'number') {
+    ctx.page.drawLine({
+      start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
+      end: {x: cursor.xStart + cursor.hWidth * 0.25, y: yPosOld},
+      thickness: 1,
+      color: rgb(0,0,0)
+    })
+  }
 
   const headingHeight = FONT_SIZES.HEADING * 0.75
 

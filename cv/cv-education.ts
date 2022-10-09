@@ -1,16 +1,17 @@
 import { rgb } from "pdf-lib";
 import { EDUCATION } from "./data";
-import { FONT_SIZES } from "./style";
-import { Context, Cursor, drawSectionHeader, measureTextWidth, writeMultilineText } from "./util";
+import { FONT_SIZES, TIMELINE_OFFSET } from "./style";
+import { Context, Cursor, drawSectionHeader, measureTextWidth } from "./util";
 
 const LINE_SPACING = FONT_SIZES.NORMAL + 2
 
 export function drawEducation(ctx: Context, cursor: Cursor): {vSpaceConsumed: number} {
 
-  let titleSpaceConsumed = drawSectionHeader('EDUCATION & CERTIFICATES', ctx, cursor).vSpaceConsumed
+  let yPosOld: number = cursor.yPos
+
+  let titleSpaceConsumed = drawSectionHeader('EDUCATION & CERTIFICATES', ctx, cursor, yPosOld).vSpaceConsumed
 
   let yPos = cursor.yPos
-  let yPosOld: number|undefined
   const vSpaceConsumed = EDUCATION.reduce((vSpace, row) => {
     
     const extraSpace = drawEducationRow(row, ctx, {...cursor, yPos: yPos - vSpace}, yPosOld).vSpaceConsumed + vSpace + FONT_SIZES.NORMAL
@@ -37,8 +38,8 @@ export function drawEducationRow(row: typeof EDUCATION[number], ctx: Context, cu
 
   if (typeof yPosOld === 'number') {
     ctx.page.drawLine({
-      start: {x: cursor.xStart - 5, y: yPosOld - FONT_SIZES.NORMAL * 0.75},
-      end: {x: cursor.xStart - 5, y: yPos - FONT_SIZES.NORMAL * 0.75},
+      start: {x: cursor.xStart + TIMELINE_OFFSET, y: yPosOld},
+      end: {x: cursor.xStart + TIMELINE_OFFSET, y: yPos - FONT_SIZES.NORMAL * 0.75},
       thickness: 1,
       color: rgb(0.2, 0.2, 0.2)
     })

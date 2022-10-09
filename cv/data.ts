@@ -50,7 +50,6 @@ export const SKILLS = [
       {name: 'HTML & CSS', level: 4},
       {name: 'SVG', level: 5},
       {name: 'UI Design', level: 3}
-
     ]
   },
   {
